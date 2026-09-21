@@ -1,0 +1,42 @@
+# Sources de la veille. "source" peut être n'importe quel texte :
+# si l'option n'existe pas encore dans Notion, elle est créée automatiquement.
+
+feeds:
+  # --- Tech / Archi / IA ---
+  - source: Touilleur Express
+    veille: Tech / Archi / IA
+    url: https://www.touilleur-express.fr/feed
+  - source: blog.fsck.com
+    veille: Tech / Archi / IA
+    url: https://blog.fsck.com/feed/feed.xml
+  - source: Flutter
+    veille: Tech / Archi / IA
+    url: https://medium.com/feed/flutter
+  - source: Dart
+    veille: Tech / Archi / IA
+    url: https://medium.com/feed/dartlang
+  - source: Apple Developer
+    veille: Tech / Archi / IA
+    url: https://developer.apple.com/news/rss/news.rss
+  - source: Android Developers
+    veille: Tech / Archi / IA
+    url: https://android-developers.googleblog.com/feeds/posts/default
+
+  # --- Auto connectée ---
+  - source: Electrek
+    veille: Auto connectée
+    url: https://electrek.co/feed/
+    max: 15
+
+# Apps concurrentes suivies sur l'App Store : une entrée est créée à chaque
+# nouvelle version, avec les notes de version résumées.
+# app_store_id = le nombre après "id" dans l'URL de la fiche App Store
+# (ex. https://apps.apple.com/fr/app/xxx/id123456789 -> 123456789).
+# "concurrent" doit correspondre à une option de la colonne Concurrent.
+apps:
+  # - name: Tesla
+  #   concurrent: Tesla
+  #   app_store_id: 123456789
+  # - name: My BMW
+  #   concurrent: BMW
+  #   app_store_id: 123456789
