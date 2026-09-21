@@ -28,15 +28,45 @@ feeds:
     url: https://electrek.co/feed/
     max: 15
 
+
 # Apps concurrentes suivies sur l'App Store : une entrée est créée à chaque
 # nouvelle version, avec les notes de version résumées.
-# app_store_id = le nombre après "id" dans l'URL de la fiche App Store
-# (ex. https://apps.apple.com/fr/app/xxx/id123456789 -> 123456789).
-# "concurrent" doit correspondre à une option de la colonne Concurrent.
+# app_store_id = le nombre après "id" dans l'URL de la fiche App Store.
+# country = storefront interrogé (fr par défaut) ; à changer pour les apps
+# absentes du store français. Si une app est introuvable, le script le signale
+# dans les logs et continue.
 apps:
-  # - name: Tesla
-  #   concurrent: Tesla
-  #   app_store_id: 123456789
-  # - name: My BMW
-  #   concurrent: BMW
-  #   app_store_id: 123456789
+  # --- Pure players & nouveaux entrants ---
+  - {name: Tesla, concurrent: Tesla, app_store_id: 582007913}
+  - {name: BYD Auto, concurrent: BYD, app_store_id: 1492400299}
+  - {name: XPENG, concurrent: XPeng, app_store_id: 1538089870}
+  - {name: ZEEKR (EU), concurrent: Zeekr, app_store_id: 6448229216, country: de}
+  - {name: Polestar, concurrent: Polestar, app_store_id: 1451196635}
+  - {name: Rivian, concurrent: Rivian, app_store_id: 1570215232, country: us}
+ 
+  # --- Allemands ---
+  - {name: My BMW, concurrent: BMW, app_store_id: 1519034860}
+  - {name: MINI, concurrent: MINI, app_store_id: 1519459056}
+  - {name: Mercedes-Benz, concurrent: Mercedes, app_store_id: 1487652920}
+  - {name: Volkswagen, concurrent: Volkswagen, app_store_id: 1517566572}
+  - {name: myAudi, concurrent: Audi, app_store_id: 440464115}
+  - {name: My Porsche, concurrent: Porsche, app_store_id: 1559529059}
+  - {name: MyŠkoda, concurrent: Škoda, app_store_id: 1632202810}
+  - {name: My CUPRA, concurrent: Cupra, app_store_id: 1576693756}
+ 
+  # --- Stellantis ---
+  - {name: MyPeugeot, concurrent: Peugeot, app_store_id: 1021587274}
+  - {name: MyCitroën, concurrent: Citroën, app_store_id: 1019563307}
+  - {name: myOpel, concurrent: Opel, app_store_id: 1439342035}
+ 
+  # --- Asiatiques ---
+  - {name: MyToyota (Europe), concurrent: Toyota, app_store_id: 1617623127}
+  - {name: myHyundai (Europe), concurrent: Hyundai, app_store_id: 6741947307}
+  - {name: Kia App, concurrent: Kia, app_store_id: 6740517042}
+  - {name: NissanConnect Services (Europe), concurrent: Nissan, app_store_id: 1451280347}
+ 
+  # --- Autres ---
+  - {name: Volvo Cars, concurrent: Volvo, app_store_id: 439635293}
+  - {name: Ford, concurrent: Ford, app_store_id: 1095418609}
+  - {name: Land Rover Remote, concurrent: Land Rover, app_store_id: 1345446880}
+ 

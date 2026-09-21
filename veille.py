@@ -29,7 +29,12 @@ UA = {"User-Agent": "Mozilla/5.0 (veille-bot)"}
 
 THEMES = ["Flutter", "Archi", "IA / Agents", "Conférence Apple", "Conférence Google",
           "SDV", "Régulation", "Concurrence"]
-CONCURRENTS = ["BMW", "Tesla", "Stellantis", "Volkswagen", "Toyota", "Mercedes", "Hyundai / Kia"]
+CONCURRENTS = [
+    "Tesla", "BYD", "BMW", "MINI", "Mercedes", "Volkswagen", "Audi", "Porsche", "Škoda", "Cupra",
+    "Stellantis", "Peugeot", "Citroën", "Opel", "Toyota", "Hyundai / Kia", "Hyundai", "Kia",
+    "Volvo", "Polestar", "Ford", "Nissan", "XPeng", "Zeekr", "Land Rover", "Rivian",
+    "MG", "NIO", "Leapmotor", "Lucid",
+]
 
 CUTOFF = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=MAX_AGE_DAYS)
 claude = Anthropic()
@@ -75,7 +80,7 @@ def collect_apps(cfg: dict) -> list[dict]:
     for app in cfg.get("apps") or []:
         try:
             r = requests.get("https://itunes.apple.com/lookup",
-                             params={"id": app["app_store_id"], "country": "fr"}, timeout=20)
+                             params={"id": app["app_store_id"], "country": app.get("country", "fr")}, timeout=20)
             results = r.json().get("results") or []
         except Exception as ex:
             print(f"⚠️  App ignorée {app.get('name')} : {ex}")
