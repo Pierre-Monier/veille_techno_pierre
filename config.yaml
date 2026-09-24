@@ -21,6 +21,9 @@ feeds:
   - source: Android Developers
     veille: Tech / Archi / IA
     url: https://android-developers.googleblog.com/feeds/posts/default
+  - source: Felix Krause
+    veille: Tech / Archi / IA
+    url: https://krausefx.com/feed.xml
 
   # --- Auto connectée ---
   - source: Electrek
