@@ -2,7 +2,7 @@ name: Veille hebdo
 
 on:
   schedule:
-    - cron: "0 6 * * 1"   # lundi 6h UTC (8h à Paris l'été, 7h l'hiver)
+    - cron: "23 6 * * 1"  # lundi 6h23 UTC (8h23 à Paris l'été, 7h23 l'hiver) - minute décalée hors du top d'heure pour limiter les retards de file GitHub
   workflow_dispatch:       # bouton "Run workflow" pour lancer à la main
 
 jobs:
