@@ -24,6 +24,15 @@ feeds:
   - source: Felix Krause
     veille: Tech / Archi / IA
     url: https://krausefx.com/feed.xml
+  - source: Claude
+    veille: Tech / Archi / IA
+    url: https://tim-hilde.github.io/anthropic-rss/rss.xml
+  - source: Sebastian Röhl
+    veille: Tech / Archi / IA
+    url: https://sebastianroehl.substack.com/feed
+  - source: Sandro Maglione
+    veille: Tech / Archi / IA
+    url: https://www.sandromaglione.com/feed
 
   # --- Auto connectée ---
   - source: Electrek
