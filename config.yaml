@@ -34,10 +34,12 @@ feeds:
     veille: Tech / Archi / IA
     url: https://www.sandromaglione.com/feed
 
-  # --- Auto connectée ---
-  - source: Electrek
-    veille: Auto connectée
-    url: https://electrek.co/feed/
+  # --- Jobs ---
+  # Flux global de SwissDevJobs : toutes les offres tech en Suisse (non filtré
+  # Flutter ni Genève). À trier côté Notion.
+  - source: SwissDevJobs (CH)
+    veille: Jobs
+    url: https://swissdevjobs.ch/rss
     max: 15
 
 
