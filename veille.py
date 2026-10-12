@@ -156,19 +156,27 @@ Contenu :
 __TEXT__"""
 
 
+def ask_claude_json(prompt: str) -> dict | None:
+    """Interroge Claude et parse sa réponse JSON. Renvoie None si l'appel échoue."""
+    try:
+        msg = claude.messages.create(model=MODEL, max_tokens=500,
+                                     messages=[{"role": "user", "content": prompt}])
+        raw = "".join(b.text for b in msg.content if b.type == "text")
+        return json.loads(re.sub(r"```(json)?", "", raw).strip())
+    except Exception as ex:
+        print(f"⚠️  Appel Claude impossible : {ex}")
+        return None
+
+
 def summarize(item: dict) -> dict:
     prompt = (PROMPT.replace("__THEMES__", json.dumps(THEMES, ensure_ascii=False))
               .replace("__CONCURRENTS__", json.dumps(CONCURRENTS, ensure_ascii=False))
               .replace("__TITLE__", item["title"])
               .replace("__SOURCE__", item["source"])
               .replace("__TEXT__", item["text"] or "(pas de contenu, résume à partir du titre)"))
-    try:
-        msg = claude.messages.create(model=MODEL, max_tokens=500,
-                                     messages=[{"role": "user", "content": prompt}])
-        raw = "".join(b.text for b in msg.content if b.type == "text")
-        data = json.loads(re.sub(r"```(json)?", "", raw).strip())
-    except Exception as ex:
-        print(f"⚠️  Résumé impossible pour « {item['title']} » : {ex}")
+    data = ask_claude_json(prompt)
+    if data is None:
+        print(f"⚠️  Résumé impossible pour « {item['title']} »")
         data = {"resume": item["text"][:300], "themes": [], "concurrent": None, "impact": False}
 
     item["resume"] = str(data.get("resume") or item["title"])
@@ -181,26 +189,84 @@ def summarize(item: dict) -> dict:
     return item
 
 
+# ---------- Offres d'emploi ----------
+
+JOB_PROMPT = """Tu aides un développeur à faire sa veille d'offres d'emploi. Voici son profil :
+__PROFILE__
+
+Évalue l'offre ci-dessous par rapport à ce profil. Réponds UNIQUEMENT avec un objet JSON, \
+sans texte autour ni balises Markdown :
+{"fit": true, "resume": "...", "themes": ["Flutter"]}
+
+- fit : true seulement si le poste correspond vraiment aux points forts du profil \
+(séniorité, techno, langue parlée). false sinon.
+- resume : 2 phrases en français — l'intitulé puis pourquoi ça colle (ou non) au profil, \
+en précisant lieu, type de contrat et techno si l'offre les mentionne.
+- themes : toujours ["Flutter"].
+
+Titre : __TITLE__
+Source : __SOURCE__
+Contenu :
+__TEXT__"""
+
+
+def apply_job_result(item: dict, data: dict | None) -> bool:
+    """Renseigne resume/themes/impact de l'offre et renvoie True s'il faut la garder.
+
+    Si l'évaluation a échoué (data None), on garde l'offre en la signalant plutôt que de
+    la perdre silencieusement."""
+    item["impact"] = False
+    item["themes"] = ["Flutter"]
+    if data is None:
+        print(f"⚠️  Évaluation du fit impossible pour « {item['title']} »")
+        item["resume"] = f"⚠️ Évaluation du fit impossible, à vérifier manuellement : {item['title']}"
+        return True
+    item["resume"] = str(data.get("resume") or item["title"])
+    item["themes"] = [t for t in data.get("themes") or [] if t in THEMES] or ["Flutter"]
+    return bool(data.get("fit"))
+
+
+def score_job(item: dict, profile: str) -> bool:
+    prompt = (JOB_PROMPT.replace("__PROFILE__", profile)
+              .replace("__TITLE__", item["title"])
+              .replace("__SOURCE__", item["source"])
+              .replace("__TEXT__", item["text"] or "(pas de contenu)"))
+    return apply_job_result(item, ask_claude_json(prompt))
+
+
 # ---------- Telegram ----------
 
-def send_telegram(items: list[dict]) -> None:
+def item_block(i: dict) -> str:
+    star = " ⭐" if i.get("impact") else ""
+    return (f'• <b><a href="{html.escape(i["link"], quote=True)}">{html.escape(i["title"])}</a></b>'
+            f"{star}\n{html.escape(i['resume'])}")
+
+
+def build_digest(items: list[dict]) -> list[str]:
     notion_url = f"https://www.notion.so/{NOTION_DB}"
-    if not items:
-        blocks = ["📡 <b>Veille</b> : rien de nouveau cette semaine."]
+    blocks = [f"📡 <b>Veille de la semaine</b> — {len(items)} nouveautés (⭐ = impact AppVengers)"
+              if items else "📡 <b>Veille</b> : rien de nouveau cette semaine."]
+    for veille, emoji in (("Tech / Archi / IA", "🧠"), ("Auto connectée", "🚗")):
+        section = [i for i in items if i["veille"] == veille]
+        if not section:
+            continue
+        blocks.append(f"\n{emoji} <b>{html.escape(veille)}</b>")
+        blocks.extend(item_block(i) for i in section)
+
+    # Section Jobs toujours affichée : « aucune offre » doit se distinguer d'un flux vide/cassé.
+    jobs = [i for i in items if i["veille"] == "Jobs"]
+    blocks.append("\n💼 <b>Jobs</b>")
+    if jobs:
+        blocks.extend(item_block(i) for i in jobs)
     else:
-        blocks = [f"📡 <b>Veille de la semaine</b> — {len(items)} nouveautés (⭐ = impact AppVengers)"]
-        for veille, emoji in (("Tech / Archi / IA", "🧠"), ("Auto connectée", "🚗")):
-            section = [i for i in items if i["veille"] == veille]
-            if not section:
-                continue
-            blocks.append(f"\n{emoji} <b>{html.escape(veille)}</b>")
-            for i in section:
-                star = " ⭐" if i["impact"] else ""
-                blocks.append(
-                    f'• <b><a href="{html.escape(i["link"], quote=True)}">{html.escape(i["title"])}</a></b>'
-                    f"{star}\n{html.escape(i['resume'])}"
-                )
+        blocks.append("Aucune offre correspondant à ton profil cette semaine.")
+
     blocks.append(f'\n🗂 <a href="{notion_url}">Ouvrir la base Notion</a>')
+    return blocks
+
+
+def send_telegram(items: list[dict]) -> None:
+    blocks = build_digest(items)
 
     # Telegram limite un message à 4096 caractères : on découpe si besoin
     chunks, current = [], ""
@@ -223,6 +289,8 @@ def send_telegram(items: list[dict]) -> None:
 def main() -> None:
     with open("config.yaml", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
+    with open("profile.md", encoding="utf-8") as f:
+        profile = f.read()
 
     candidates = sorted(collect_feeds(cfg) + collect_apps(cfg), key=lambda i: i["date"], reverse=True)
     print(f"{len(candidates)} éléments récents trouvés")
@@ -235,7 +303,12 @@ def main() -> None:
         try:
             if already_in_notion(item["link"]):
                 continue
-            summarize(item)
+            if item["veille"] == "Jobs":
+                if not score_job(item, profile):
+                    print(f"⏭  Offre écartée : {item['title']}")
+                    continue
+            else:
+                summarize(item)
             if not DRY_RUN:
                 create_notion_page(item)
             new_items.append(item)

@@ -35,12 +35,13 @@ feeds:
     url: https://www.sandromaglione.com/feed
 
   # --- Jobs ---
-  # Flux global de SwissDevJobs : toutes les offres tech en Suisse (non filtré
-  # Flutter ni Genève). À trier côté Notion.
+  # Flux global de SwissDevJobs (toutes les offres tech en Suisse). Chaque offre est
+  # évaluée par Claude selon profile.md : seules celles qui collent au profil sont
+  # ajoutées. Voir veille "Jobs" dans veille.py.
   - source: SwissDevJobs (CH)
     veille: Jobs
     url: https://swissdevjobs.ch/rss
-    max: 15
+    max: 30
 
 
 # Apps concurrentes suivies sur l'App Store : une entrée est créée à chaque
