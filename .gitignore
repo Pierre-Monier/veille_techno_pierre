@@ -1,0 +1,4 @@
+Profil LinkedIn.pdf
+*.pdf
+__pycache__/
+.pytest_cache/

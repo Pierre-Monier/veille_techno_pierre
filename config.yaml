@@ -34,11 +34,14 @@ feeds:
     veille: Tech / Archi / IA
     url: https://www.sandromaglione.com/feed
 
-  # --- Auto connectée ---
-  - source: Electrek
-    veille: Auto connectée
-    url: https://electrek.co/feed/
-    max: 15
+  # --- Jobs ---
+  # Flux global de SwissDevJobs (toutes les offres tech en Suisse). Chaque offre est
+  # évaluée par Claude selon profile.md : seules celles qui collent au profil sont
+  # ajoutées. Voir veille "Jobs" dans veille.py.
+  - source: SwissDevJobs (CH)
+    veille: Jobs
+    url: https://swissdevjobs.ch/rss
+    max: 30
 
 
 # Apps concurrentes suivies sur l'App Store : une entrée est créée à chaque
