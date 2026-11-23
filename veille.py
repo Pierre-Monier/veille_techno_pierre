@@ -182,8 +182,12 @@ def topic_for(cfg: dict, veille: str) -> str | None:
 
 
 def build_summary_prompt(item: dict, topic: str | None) -> str:
-    topic_block = TOPIC_PROMPT.replace("__DESCRIPTION__", topic.strip()) if topic else ""
-    return (PROMPT.replace("__THEMES__", json.dumps(THEMES, ensure_ascii=False))
+    prompt, topic_block = PROMPT, ""
+    if topic:
+        # L'exemple JSON doit montrer "pertinent", sinon Claude a tendance à l'omettre.
+        prompt = prompt.replace('{"resume": "..."', '{"pertinent": true, "resume": "..."')
+        topic_block = TOPIC_PROMPT.replace("__DESCRIPTION__", topic.strip())
+    return (prompt.replace("__THEMES__", json.dumps(THEMES, ensure_ascii=False))
             .replace("__CONCURRENTS__", json.dumps(CONCURRENTS, ensure_ascii=False))
             .replace("__TOPIC__", topic_block)
             .replace("__TITLE__", item["title"])

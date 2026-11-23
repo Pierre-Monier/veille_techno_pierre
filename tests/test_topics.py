@@ -66,3 +66,8 @@ def test_new_themes_are_accepted():
     veille.apply_summary(item, {"pertinent": True, "resume": "r",
                                 "themes": ["Clean Archi", "IA locale"]}, TOPIC)
     assert item["themes"] == ["Clean Archi", "IA locale"]
+
+
+def test_prompt_json_example_shows_pertinent_when_filtered():
+    prompt = veille.build_summary_prompt(_item(), TOPIC)
+    assert '{"pertinent": true, "resume": "..."' in prompt
