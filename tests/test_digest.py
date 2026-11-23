@@ -31,3 +31,19 @@ def test_jobs_section_lists_matched_offer():
     text = "\n".join(veille.build_digest([_job()]))
     assert "Senior Flutter Engineer" in text
     assert "Aucune offre" not in text
+
+
+def _in(veille_name, title):
+    return {**_article(), "veille": veille_name, "title": title}
+
+
+def test_architecture_and_local_ai_sections_are_rendered_in_order():
+    items = [_article(), _in("Architecture", "Hexa"), _in("IA locale", "Quad 3090")]
+    text = "\n".join(veille.build_digest(items))
+    assert text.index("🧠") < text.index("🏛 <b>Architecture</b>") < text.index("🖥 <b>IA locale</b>")
+    assert "Hexa" in text and "Quad 3090" in text
+
+
+def test_empty_new_sections_are_hidden():
+    text = "\n".join(veille.build_digest([_article()]))
+    assert "🏛" not in text and "🖥" not in text
