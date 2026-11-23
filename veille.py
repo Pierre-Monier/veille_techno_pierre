@@ -28,7 +28,7 @@ NOTION_HEADERS = {
 UA = {"User-Agent": "Mozilla/5.0 (veille-bot)"}
 
 THEMES = ["Flutter", "Archi", "IA / Agents", "Conférence Apple", "Conférence Google",
-          "SDV", "Régulation", "Concurrence"]
+          "SDV", "Régulation", "Concurrence", "Clean Archi", "DDD", "IA locale"]
 CONCURRENTS = [
     "Tesla", "BYD", "BMW", "MINI", "Mercedes", "Volkswagen", "Audi", "Porsche", "Škoda", "Cupra",
     "Stellantis", "Peugeot", "Citroën", "Opel", "Toyota", "Hyundai / Kia", "Hyundai", "Kia",
@@ -149,7 +149,7 @@ Réponds UNIQUEMENT avec un objet JSON, sans texte autour ni balises Markdown :
 - concurrent : une valeur parmi __CONCURRENTS__ si l'article porte sur ce constructeur, sinon null
 - impact : true seulement si cela peut concrètement influencer l'architecture, les standards \
 ou le produit d'une app mobile Flutter automobile
-
+__TOPIC__
 Titre : __TITLE__
 Source : __SOURCE__
 Contenu :
@@ -168,16 +168,41 @@ def ask_claude_json(prompt: str) -> dict | None:
         return None
 
 
-def summarize(item: dict) -> dict:
-    prompt = (PROMPT.replace("__THEMES__", json.dumps(THEMES, ensure_ascii=False))
-              .replace("__CONCURRENTS__", json.dumps(CONCURRENTS, ensure_ascii=False))
-              .replace("__TITLE__", item["title"])
-              .replace("__SOURCE__", item["source"])
-              .replace("__TEXT__", item["text"] or "(pas de contenu, résume à partir du titre)"))
-    data = ask_claude_json(prompt)
+TOPIC_PROMPT = """
+Cette veille ne garde que les articles sur ce sujet :
+__DESCRIPTION__
+Ajoute au JSON le champ "pertinent" : true seulement si l'article traite vraiment de ce sujet, \
+false sinon.
+"""
+
+
+def topic_for(cfg: dict, veille: str) -> str | None:
+    """Description du sujet de la veille si elle est filtrée par Claude, sinon None."""
+    return (cfg.get("topics") or {}).get(veille)
+
+
+def build_summary_prompt(item: dict, topic: str | None) -> str:
+    topic_block = TOPIC_PROMPT.replace("__DESCRIPTION__", topic.strip()) if topic else ""
+    return (PROMPT.replace("__THEMES__", json.dumps(THEMES, ensure_ascii=False))
+            .replace("__CONCURRENTS__", json.dumps(CONCURRENTS, ensure_ascii=False))
+            .replace("__TOPIC__", topic_block)
+            .replace("__TITLE__", item["title"])
+            .replace("__SOURCE__", item["source"])
+            .replace("__TEXT__", item["text"] or "(pas de contenu, résume à partir du titre)"))
+
+
+def apply_summary(item: dict, data: dict | None, topic: str | None) -> bool:
+    """Renseigne resume/themes/concurrent/impact et renvoie True s'il faut garder l'article.
+
+    Pour une veille filtrée (topic), un article hors sujet ou non évalué est écarté :
+    le perdre ne coûte presque rien, contrairement à une offre d'emploi."""
     if data is None:
         print(f"⚠️  Résumé impossible pour « {item['title']} »")
+        if topic:
+            return False
         data = {"resume": item["text"][:300], "themes": [], "concurrent": None, "impact": False}
+    if topic and not data.get("pertinent"):
+        return False
 
     item["resume"] = str(data.get("resume") or item["title"])
     item["themes"] = [t for t in data.get("themes") or [] if t in THEMES]
@@ -186,7 +211,11 @@ def summarize(item: dict) -> dict:
     if item["concurrent"] and "Concurrence" not in item["themes"]:
         item["themes"].append("Concurrence")
     item["impact"] = bool(data.get("impact"))
-    return item
+    return True
+
+
+def summarize(item: dict, topic: str | None = None) -> bool:
+    return apply_summary(item, ask_claude_json(build_summary_prompt(item, topic)), topic)
 
 
 # ---------- Offres d'emploi ----------
@@ -307,8 +336,9 @@ def main() -> None:
                 if not score_job(item, profile):
                     print(f"⏭  Offre écartée : {item['title']}")
                     continue
-            else:
-                summarize(item)
+            elif not summarize(item, topic_for(cfg, item["veille"])):
+                print(f"⏭  Hors sujet : {item['title']}")
+                continue
             if not DRY_RUN:
                 create_notion_page(item)
             new_items.append(item)
