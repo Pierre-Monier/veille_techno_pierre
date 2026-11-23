@@ -275,7 +275,8 @@ def build_digest(items: list[dict]) -> list[str]:
     notion_url = f"https://www.notion.so/{NOTION_DB}"
     blocks = [f"📡 <b>Veille de la semaine</b> — {len(items)} nouveautés (⭐ = impact AppVengers)"
               if items else "📡 <b>Veille</b> : rien de nouveau cette semaine."]
-    for veille, emoji in (("Tech / Archi / IA", "🧠"), ("Auto connectée", "🚗")):
+    for veille, emoji in (("Tech / Archi / IA", "🧠"), ("Architecture", "🏛"), ("IA locale", "🖥"),
+                          ("Auto connectée", "🚗")):
         section = [i for i in items if i["veille"] == veille]
         if not section:
             continue
