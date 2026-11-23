@@ -1,6 +1,18 @@
 # Sources de la veille. "source" peut être n'importe quel texte :
 # si l'option n'existe pas encore dans Notion, elle est créée automatiquement.
 
+# Sujets des veilles filtrées : pour chaque article de ces veilles, Claude décide
+# s'il colle à la description. Édite ces textes pour ajuster ce qui est gardé.
+topics:
+  Architecture: >
+    Clean Architecture, architecture hexagonale (ports & adapters), DDD,
+    modélisation du domaine, découpage modulaire. Pas de tuto débutant,
+    pas d'article .NET/Java centré sur un framework plutôt que sur le design.
+  IA locale: >
+    Retour d'expérience concret d'une personne qui fait tourner des modèles
+    d'IA sur son propre matériel (GPU, Mac, homelab) : config, perfs, coûts.
+    Pas de tuto d'installation générique, pas d'annonce produit.
+
 feeds:
   # --- Tech / Archi / IA ---
   - source: Touilleur Express
@@ -18,9 +30,11 @@ feeds:
   - source: Apple Developer
     veille: Tech / Archi / IA
     url: https://developer.apple.com/news/rss/news.rss
+    max: 3
   - source: Android Developers
     veille: Tech / Archi / IA
     url: https://android-developers.googleblog.com/feeds/posts/default
+    max: 3
   - source: Felix Krause
     veille: Tech / Archi / IA
     url: https://krausefx.com/feed.xml
@@ -33,6 +47,76 @@ feeds:
   - source: Sandro Maglione
     veille: Tech / Archi / IA
     url: https://www.sandromaglione.com/feed
+
+  # --- Architecture ---
+  # Filtrée par Claude selon topics.Architecture : les tags Medium / dev.to sont bruités.
+  - source: Architecture Weekly
+    veille: Architecture
+    url: https://www.architecture-weekly.com/feed
+  - source: Mathias Verraes
+    veille: Architecture
+    url: https://verraes.net/feed.atom
+  - source: Vlad Khononov
+    veille: Architecture
+    url: https://vladikk.com/index.xml
+  - source: Khalil Stemmler
+    veille: Architecture
+    url: https://khalilstemmler.com/rss.xml
+  - source: Mark Seemann
+    veille: Architecture
+    url: https://blog.ploeh.dk/rss.xml
+  - source: Martin Fowler
+    veille: Architecture
+    url: https://martinfowler.com/feed.atom
+  - source: Medium flutter-architecture
+    veille: Architecture
+    url: https://medium.com/feed/tag/flutter-architecture
+  - source: Medium clean-architecture
+    veille: Architecture
+    url: https://medium.com/feed/tag/clean-architecture
+  - source: Medium hexagonal-architecture
+    veille: Architecture
+    url: https://medium.com/feed/tag/hexagonal-architecture
+  - source: Medium domain-driven-design
+    veille: Architecture
+    url: https://medium.com/feed/tag/domain-driven-design
+  - source: dev.to cleanarchitecture
+    veille: Architecture
+    url: https://dev.to/feed/tag/cleanarchitecture
+  - source: dev.to hexagonalarchitecture
+    veille: Architecture
+    url: https://dev.to/feed/tag/hexagonalarchitecture
+  - source: dev.to domaindrivendesign
+    veille: Architecture
+    url: https://dev.to/feed/tag/domaindrivendesign
+
+  # --- IA locale ---
+  # Particuliers qui documentent leur matériel. Filtrée par Claude selon topics["IA locale"].
+  - source: Digital Spaceport
+    veille: IA locale
+    url: https://digitalspaceport.com/feed/
+  - source: Pedro Alonso
+    veille: IA locale
+    url: https://www.pedroalonso.net/rss.xml
+  - source: Patshead
+    veille: IA locale
+    url: https://blog.patshead.com/atom.xml
+  - source: bmdpat
+    veille: IA locale
+    url: https://bmdpat.com/blog/rss.xml
+    max: 30  # ~6 posts par semaine, beaucoup de devlogs que le filtre écarte
+  - source: Simon Willison (local LLMs)
+    veille: IA locale
+    url: https://simonwillison.net/tags/local-llms.atom
+  - source: dev.to localllm
+    veille: IA locale
+    url: https://dev.to/feed/tag/localllm
+  - source: Medium local-llm
+    veille: IA locale
+    url: https://medium.com/feed/tag/local-llm
+  - source: Medium homelab
+    veille: IA locale
+    url: https://medium.com/feed/tag/homelab
 
   # --- Jobs ---
   # Flux global de SwissDevJobs (toutes les offres tech en Suisse). Chaque offre est

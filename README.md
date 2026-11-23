@@ -33,6 +33,8 @@ puis digest envoyé sur Telegram avec des liens cliquables.
 ## Personnaliser
 
 - **Sources et apps concurrentes** : `config.yaml`.
+- **Sujets filtrés** : `topics:` dans `config.yaml` décrit ce qui est gardé dans les
+  veilles filtrées par Claude (Architecture, IA locale).
 - **Fréquence** : la ligne `cron` du workflow (`0 6 * * *` = tous les jours).
 - **Test local sans rien écrire** : `DRY_RUN=1 python veille.py` (avec les variables d'env).
 - **Modèle** : variable `CLAUDE_MODEL` (Haiku par défaut, quelques centimes par semaine).
